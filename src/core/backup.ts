@@ -3,6 +3,7 @@
 import { compare } from "compare-versions";
 import PluginManager from "./pluginManager";
 import MusicSheet from "@/core/musicSheet";
+import Album from "@/core/album";
 import { ResumeMode } from "@/constants/commonConst.ts";
 
 /**
@@ -15,6 +16,7 @@ import { ResumeMode } from "@/constants/commonConst.ts";
 
 interface IBackJson {
     musicSheets: IMusic.IMusicSheetItem[];
+    starredAlbums: IAlbum.IAlbumItem[];
     plugins: Array<{ srcUrl: string; version: string }>;
 }
 
@@ -28,6 +30,7 @@ function backup() {
 
     return JSON.stringify({
         musicSheets: musicSheets,
+        starredAlbums: Album.backupAlbums(),
         plugins: normalizedPlugins,
     });
 }
@@ -66,6 +69,12 @@ async function resume(
 
     /** 恢复歌单 */
     const resumeMusicSheets = MusicSheet.resumeSheets(musicSheets, resumeMode);
+
+    /** 恢复收藏专辑 */
+    const { starredAlbums } = obj ?? {};
+    if (Array.isArray(starredAlbums)) {
+        await Album.resumeAlbums(starredAlbums);
+    }
 
     return Promise.all([...(resumePlugins ?? []), resumeMusicSheets]);
 }
