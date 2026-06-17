@@ -8,6 +8,7 @@ import { ImgAsset } from "@/constants/assetsConst";
 import { localPluginPlatform } from "@/constants/commonConst";
 import { useI18N } from "@/core/i18n";
 import MusicSheet, { useSheetsBase, useStarredSheets } from "@/core/musicSheet";
+import Album, { useStarredAlbums } from "@/core/album";
 import { ROUTE_PATH, useNavigate } from "@/core/router";
 import useColors from "@/hooks/useColors";
 import rpx from "@/utils/rpx";
@@ -24,6 +25,7 @@ export default function Sheets() {
 
     const allSheets = useSheetsBase();
     const staredSheets = useStarredSheets();
+    const starredAlbums = useStarredAlbums();
     const { t } = useI18N();
 
     const selectedTabTextStyle = useMemo(() => {
@@ -93,6 +95,33 @@ export default function Sheets() {
                         ({staredSheets.length})
                     </ThemeText>
                 </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback
+                    style={styles.tabContainer}
+                    accessible
+                    accessibilityLabel={t("home.starredAlbumsCount.a11y", {
+                        count: starredAlbums.length,
+                    })}
+                    onPress={() => {
+                        setIndex(2);
+                    }}>
+                    <ThemeText
+                        fontSize="title"
+                        accessible={false}
+                        style={[
+                            styles.tabText,
+                            index === 2 ? selectedTabTextStyle : null,
+                        ]}>
+                        {t("home.starredAlbums")}
+                    </ThemeText>
+                    <ThemeText
+                        fontColor="textSecondary"
+                        fontSize="subTitle"
+                        accessible={false}
+                        style={styles.tabText}>
+                        {" "}
+                        ({starredAlbums.length})
+                    </ThemeText>
+                </TouchableWithoutFeedback>
                 <View style={styles.more}>
                     <IconButton
                         name="plus"
@@ -116,10 +145,11 @@ export default function Sheets() {
             <FlashList
                 ListEmptyComponent={<Empty />}
                 extraData={{ t }}
-                data={(index === 0 ? allSheets : staredSheets) ?? []}
+                data={(index === 0 ? allSheets : index === 1 ? staredSheets : starredAlbums) ?? []}
                 estimatedItemSize={ListItem.Size.big}
                 renderItem={({ item: sheet }) => {
-                    const isLocalSheet = !(
+                    const isAlbumTab = index === 2;
+                    const isLocalSheet = !isAlbumTab && !(
                         sheet.platform && sheet.platform !== localPluginPlatform
                     );
 
@@ -130,7 +160,11 @@ export default function Sheets() {
                             heightType="big"
                             withHorizontalPadding
                             onPress={() => {
-                                if (isLocalSheet) {
+                                if (isAlbumTab) {
+                                    navigate(ROUTE_PATH.ALBUM_DETAIL, {
+                                        albumItem: sheet,
+                                    });
+                                } else if (isLocalSheet) {
                                     navigate(ROUTE_PATH.LOCAL_SHEET_DETAIL, {
                                         id: sheet.id,
                                     });
@@ -152,23 +186,28 @@ export default function Sheets() {
                             <ListItem.Content
                                 title={sheet.title}
                                 description={
-                                    isLocalSheet
-                                        ? t("home.songCount", { count: sheet.worksNum })
-                                        : `${sheet.artist ?? ""}`
+                                    isAlbumTab
+                                        ? `${sheet.artist ?? ""}${sheet.date ? ` · ${sheet.date}` : ""}`
+                                        : isLocalSheet
+                                            ? t("home.songCount", { count: sheet.worksNum })
+                                            : `${sheet.artist ?? ""}`
                                 }
                             />
-                            {sheet.id !== MusicSheet.defaultSheet.id ? (
+                            {(isAlbumTab || sheet.id !== MusicSheet.defaultSheet.id) ? (
                                 <ListItem.ListItemIcon
                                     position="right"
                                     icon="trash-outline"
                                     onPress={() => {
                                         showDialog("SimpleDialog", {
-                                            title: t("dialog.deleteSheetTitle"),
-                                            content: t("dialog.deleteSheetContent", {
+                                            title: t(isAlbumTab ? "dialog.deleteAlbumTitle" : "dialog.deleteSheetTitle"),
+                                            content: t(isAlbumTab ? "dialog.deleteAlbumContent" : "dialog.deleteSheetContent", {
                                                 name: sheet.title,
                                             }),
                                             onOk: async () => {
-                                                if (isLocalSheet) {
+                                                if (isAlbumTab) {
+                                                    await Album.unstarAlbum(sheet as IAlbum.IAlbumItem);
+                                                    Toast.success(t("toast.hasUnstarredAlbum"));
+                                                } else if (isLocalSheet) {
                                                     await MusicSheet.removeSheet(
                                                         sheet.id,
                                                     );
