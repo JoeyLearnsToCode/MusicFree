@@ -18,6 +18,9 @@ interface IProps {
     musicList: IMusic.IMusicItem[] | null;
     canStar?: boolean;
     musicSheet?: IMusic.IMusicSheetItem | null;
+    // 新增：外部收藏控制（用于专辑等非歌单实体）
+    isStarred?: boolean;
+    onStarPress?: () => void;
 }
 export default function (props: IProps) {
     const { musicList, canStar, musicSheet } = props;
@@ -29,7 +32,8 @@ export default function (props: IProps) {
     const navigate = useNavigate();
     const { t } = useI18N();
 
-    const starred = useSheetIsStarred(musicSheet);
+    const defaultStarred = useSheetIsStarred(musicSheet);
+    const starred = onStarPress !== undefined ? (isStarred ?? false) : defaultStarred;
 
     return (
         <View style={style.topWrapper}>
@@ -68,7 +72,9 @@ export default function (props: IProps) {
                     color={starred ? "#e31639" : undefined}
                     style={style.optionButton}
                     onPress={async () => {
-                        if (!starred) {
+                        if (onStarPress) {
+                            await onStarPress();
+                        } else if (!starred) {
                             MusicSheet.starMusicSheet(musicSheet);
                             Toast.success(t("toast.hasStarred"));
                         } else {
