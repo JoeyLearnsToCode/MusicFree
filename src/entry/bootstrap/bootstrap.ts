@@ -10,6 +10,7 @@ import LocalMusicSheet from "@/core/localMusicSheet";
 import lyricManager from "@/core/lyricManager";
 import musicHistory from "@/core/musicHistory";
 import MusicSheet from "@/core/musicSheet";
+import Album from "@/core/album";
 import PluginManager from "@/core/pluginManager";
 import Theme from "@/core/theme";
 import TrackPlayer from "@/core/trackPlayer";
@@ -89,6 +90,7 @@ async function bootstrapImpl() {
         MusicSheet.setup().then(() => {
             logger.mark("MusicSheet");
         }),
+        Album.setup(),
         musicHistory.setup().then(() => {
             logger.mark("musicHistory");
         }),
