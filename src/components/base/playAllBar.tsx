@@ -23,7 +23,7 @@ interface IProps {
     onStarPress?: () => void;
 }
 export default function (props: IProps) {
-    const { musicList, canStar, musicSheet } = props;
+    const { musicList, canStar, musicSheet, isStarred, onStarPress } = props;
 
     const sheetName = musicSheet?.title;
     const sheetId = musicSheet?.id;

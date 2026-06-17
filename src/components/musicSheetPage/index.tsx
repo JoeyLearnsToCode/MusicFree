@@ -22,7 +22,7 @@ interface IMusicSheetPageProps {
 }
 
 export default function MusicSheetPage(props: IMusicSheetPageProps) {
-    const { navTitle, sheetInfo, musicList, canStar, onLoadMore, onRetry, state } =
+    const { navTitle, sheetInfo, musicList, canStar, isStarred, onStarPress, onLoadMore, onRetry, state } =
         props;
 
     return (
