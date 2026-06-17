@@ -11,9 +11,11 @@ interface IHeaderProps {
     musicSheet: IMusic.IMusicSheetItem | null;
     musicList: IMusic.IMusicItem[] | null;
     canStar?: boolean;
+    isStarred?: boolean;
+    onStarPress?: () => void;
 }
 export default function Header(props: IHeaderProps) {
-    const { musicSheet, musicList, canStar } = props;
+    const { musicSheet, musicList, canStar, isStarred, onStarPress } = props;
     const colors = useColors();
 
     const [maxLines, setMaxLines] = useState<number | undefined>(6);
@@ -69,6 +71,8 @@ export default function Header(props: IHeaderProps) {
             </View>
             <PlayAllBar
                 canStar={canStar}
+                isStarred={isStarred}
+                onStarPress={onStarPress}
                 musicList={musicList}
                 musicSheet={musicSheet}
             />

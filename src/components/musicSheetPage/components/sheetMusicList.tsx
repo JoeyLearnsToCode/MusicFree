@@ -15,13 +15,15 @@ interface IMusicListProps {
     musicList?: IMusic.IMusicItem[] | null;
     // 是否可收藏
     canStar?: boolean;
+    isStarred?: boolean;
+    onStarPress?: () => void;
     // 状态
     state: RequestStateCode;
     onRetry?: () => void;
     onLoadMore?: () => void;
 }
 export default function SheetMusicList(props: IMusicListProps) {
-    const { sheetInfo, musicList, canStar, state, onRetry, onLoadMore } = props;
+    const { sheetInfo, musicList, canStar, isStarred, onStarPress, state, onRetry, onLoadMore } = props;
 
     return (
         <View style={globalStyle.fwflex1}>
@@ -34,6 +36,8 @@ export default function SheetMusicList(props: IMusicListProps) {
                         Header={
                             <Header
                                 canStar={canStar}
+                                isStarred={isStarred}
+                                onStarPress={onStarPress}
                                 musicSheet={sheetInfo}
                                 musicList={musicList}
                             />

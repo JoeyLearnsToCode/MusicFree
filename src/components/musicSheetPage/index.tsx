@@ -13,6 +13,8 @@ interface IMusicSheetPageProps {
     musicList?: IMusic.IMusicItem[] | null;
     // 是否可收藏
     canStar?: boolean;
+    isStarred?: boolean;
+    onStarPress?: () => void;
     // 状态
     state: RequestStateCode;
     onRetry?: () => void;
@@ -32,6 +34,8 @@ export default function MusicSheetPage(props: IMusicSheetPageProps) {
             />
             <SheetMusicList
                 canStar={canStar}
+                isStarred={isStarred}
+                onStarPress={onStarPress}
                 sheetInfo={sheetInfo as any}
                 musicList={musicList ?? sheetInfo?.musicList}
                 state={state}
